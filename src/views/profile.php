@@ -35,137 +35,193 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Profile</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f8f9fa;
-            margin: 0;
-            padding: 0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
         }
-        .header {
-            background-color: #007bff;
-            color: white;
-            padding: 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .navbar-custom {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        .header h1 {
-            margin: 0;
-        }
-        .nav-links {
-            display: flex;
-            gap: 1rem;
-        }
-        .nav-links a {
-            color: white;
-            text-decoration: none;
-            padding: 0.5rem;
-        }
-        .nav-links a:hover {
-            background-color: #0056b3;
-            border-radius: 4px;
-        }
-        .container {
-            max-width: 600px;
-            margin: 2rem auto;
-            padding: 0 1rem;
-        }
-        .card {
-            background: white;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .card h2 {
-            margin-top: 0;
-            color: #333;
-        }
-        .form-group {
-            margin-bottom: 1rem;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-        }
-        .form-group input {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 1rem;
-        }
-        .btn {
-            display: inline-block;
-            padding: 0.75rem 1.5rem;
-            background-color: #007bff;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
+        .profile-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
             border: none;
-            cursor: pointer;
-            font-size: 1rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
-        .btn:hover {
-            background-color: #0056b3;
+        .btn-custom {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
         }
-        .message {
-            padding: 1rem;
-            border-radius: 4px;
-            margin-bottom: 1rem;
+        .btn-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
-        .message.success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
         }
-        .message.error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            margin: 0 auto 1rem;
+        }
+        .password-toggle {
+            position: relative;
+        }
+        .password-toggle .btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: none;
+            background: none;
+            color: #6c757d;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>My Profile</h1>
-        <div class="nav-links">
-            <a href="/dashboard">Dashboard</a>
-            <span>Welcome, <?php echo htmlspecialchars($user['name']); ?></span>
-            <a href="/logout">Logout</a>
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container">
+            <a class="navbar-brand text-white fw-bold" href="/dashboard">
+                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+            </a>
+            <div class="d-flex align-items-center">
+                <span class="badge bg-light text-dark me-3">
+                    <i class="fas fa-user me-1"></i><?php echo htmlspecialchars($user['name']); ?>
+                </span>
+                <a href="/logout" class="btn btn-outline-light btn-sm">
+                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-10">
+                <div class="profile-card p-4">
+                    <div class="text-center mb-4">
+                        <div class="profile-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <h2 class="fw-bold">Edit Profile</h2>
+                        <p class="text-muted">Update your account information</p>
+                    </div>
+
+                    <?php if ($message): ?>
+                        <div class="alert alert-<?php echo strpos($message, 'successfully') !== false ? 'success' : 'danger'; ?> alert-dismissible fade show" role="alert">
+                            <i class="fas fa-<?php echo strpos($message, 'successfully') !== false ? 'check-circle' : 'exclamation-triangle'; ?> me-2"></i>
+                            <?php echo htmlspecialchars($message); ?>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    <?php endif; ?>
+
+                    <form method="POST" id="profileForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="name" class="form-label fw-semibold">
+                                    <i class="fas fa-user me-2"></i>Full Name
+                                </label>
+                                <input type="text" class="form-control form-control-lg" id="name" name="name"
+                                       value="<?php echo htmlspecialchars($user['name']); ?>" required>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label fw-semibold">
+                                    <i class="fas fa-envelope me-2"></i>Email Address
+                                </label>
+                                <input type="email" class="form-control form-control-lg" id="email" name="email"
+                                       value="<?php echo htmlspecialchars($user['email']); ?>" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="password" class="form-label fw-semibold">
+                                <i class="fas fa-lock me-2"></i>New Password
+                            </label>
+                            <div class="password-toggle">
+                                <input type="password" class="form-control form-control-lg" id="password" name="password"
+                                       placeholder="Leave blank to keep current password">
+                                <button type="button" class="btn" id="togglePassword">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="form-text">
+                                Leave blank if you don't want to change your password
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="/dashboard" class="btn btn-outline-secondary me-md-2">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-custom">
+                                <i class="fas fa-save me-2"></i>Update Profile
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="container">
-        <div class="card">
-            <h2>Edit Profile</h2>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Password toggle functionality
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordField = document.getElementById('password');
+            const icon = this.querySelector('i');
 
-            <?php if ($message): ?>
-                <div class="message <?php echo strpos($message, 'successfully') !== false ? 'success' : 'error'; ?>">
-                    <?php echo htmlspecialchars($message); ?>
-                </div>
-            <?php endif; ?>
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordField.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
 
-            <form method="POST">
-                <div class="form-group">
-                    <label for="name">Name:</label>
-                    <input type="text" id="name" name="name" value="<?php echo htmlspecialchars($user['name']); ?>" required>
-                </div>
+        // Form validation
+        document.getElementById('profileForm').addEventListener('submit', function(e) {
+            const email = document.getElementById('email').value;
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-                <div class="form-group">
-                    <label for="email">Email:</label>
-                    <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" required>
-                </div>
+            if (!emailRegex.test(email)) {
+                e.preventDefault();
+                alert('Please enter a valid email address.');
+                return;
+            }
 
-                <div class="form-group">
-                    <label for="password">New Password (leave blank to keep current):</label>
-                    <input type="password" id="password" name="password">
-                </div>
+            // Show loading state
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Updating...';
+            submitBtn.disabled = true;
 
-                <button type="submit" class="btn">Update Profile</button>
-            </form>
-        </div>
-    </div>
+            // Re-enable after 3 seconds (in case of slow response)
+            setTimeout(() => {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }, 3000);
+        });
+    </script>
 </body>
 </html>

@@ -2,27 +2,27 @@
 
 $message = '';
 $success = false;
+$token = $_GET['token'] ?? '';
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name = $_POST['name'] ?? '';
-    $email = $_POST['email'] ?? '';
+    $token = $_POST['token'] ?? '';
     $password = $_POST['password'] ?? '';
     $confirmPassword = $_POST['confirm_password'] ?? '';
     $csrfToken = $_POST['csrf_token'] ?? '';
 
-    if (empty($name) || empty($email) || empty($password) || empty($confirmPassword)) {
+    if (!Auth::validateCSRFToken($csrfToken)) {
+        $message = 'Invalid request';
+    } elseif (empty($password) || empty($confirmPassword)) {
         $message = 'All fields are required';
     } elseif ($password !== $confirmPassword) {
         $message = 'Passwords do not match';
     } elseif (!Auth::validatePassword($password)) {
         $message = 'Password must be at least 8 characters long and contain uppercase, lowercase, and number';
-    } elseif (!Auth::validateName($name)) {
-        $message = 'Name must be 2-255 characters and contain only letters and spaces';
-    } elseif (!Auth::validateEmail($email)) {
-        $message = 'Please enter a valid email address';
+    } elseif (Auth::resetPassword($token, $password)) {
+        $success = true;
+        $message = 'Password reset successful! You can now login with your new password.';
     } else {
-        $result = Auth::register($name, $email, $password, $csrfToken);
-        $success = $result['success'];
-        $message = $result['message'];
+        $message = 'Invalid or expired reset token';
     }
 }
 ?>
@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - Admin Control Panel</title>
+    <title>Reset Password - Admin Control Panel</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -40,20 +40,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
         }
-        .register-container {
+        .reset-container {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             border-radius: 15px;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
         }
-        .btn-register {
+        .btn-update {
             background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
             border: none;
             border-radius: 25px;
             padding: 12px;
             font-weight: 600;
         }
-        .btn-register:hover {
+        .btn-update:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
         }
@@ -74,11 +74,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-6 col-lg-4">
-                <div class="register-container p-4">
+                <div class="reset-container p-4">
                     <div class="text-center mb-4">
-                        <i class="fas fa-user-plus fa-3x text-success mb-3"></i>
-                        <h2 class="fw-bold">Create Account</h2>
-                        <p class="text-muted">Join our community today</p>
+                        <i class="fas fa-lock-open fa-3x text-success mb-3"></i>
+                        <h2 class="fw-bold">Reset Password</h2>
+                        <p class="text-muted">Enter your new password</p>
                     </div>
 
                     <?php if ($message): ?>
@@ -89,52 +89,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                     <?php endif; ?>
 
-                    <form method="POST" id="registerForm">
-                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Auth::generateCSRFToken()); ?>">
-                        <div class="mb-3">
-                            <label for="name" class="form-label">
-                                <i class="fas fa-user me-2"></i>Full Name
-                            </label>
-                            <input type="text" class="form-control form-control-lg" id="name" name="name"
-                                    placeholder="Enter your full name" required
-                                    value="<?php echo htmlspecialchars($_POST['name'] ?? ''); ?>">
-                        </div>
+                    <?php if (!$success && $token): ?>
+                        <form method="POST" id="resetForm">
+                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Auth::generateCSRFToken()); ?>">
+                            <input type="hidden" name="token" value="<?php echo htmlspecialchars($token); ?>">
 
-                        <div class="mb-3">
-                            <label for="email" class="form-label">
-                                <i class="fas fa-envelope me-2"></i>Email Address
-                            </label>
-                            <input type="email" class="form-control form-control-lg" id="email" name="email"
-                                   placeholder="Enter your email" required
-                                   value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>">
-                        </div>
+                            <div class="mb-3">
+                                <label for="password" class="form-label">
+                                    <i class="fas fa-lock me-2"></i>New Password
+                                </label>
+                                <input type="password" class="form-control form-control-lg" id="password" name="password"
+                                        placeholder="Enter new password" required minlength="8">
+                                <div id="passwordStrength" class="password-strength"></div>
+                            </div>
 
-                        <div class="mb-3">
-                            <label for="password" class="form-label">
-                                <i class="fas fa-lock me-2"></i>Password
-                            </label>
-                            <input type="password" class="form-control form-control-lg" id="password" name="password"
-                                    placeholder="Create a password (min 8 chars, uppercase, lowercase, number)" required minlength="8">
-                            <div id="passwordStrength" class="password-strength"></div>
-                        </div>
+                            <div class="mb-4">
+                                <label for="confirm_password" class="form-label">
+                                    <i class="fas fa-lock me-2"></i>Confirm Password
+                                </label>
+                                <input type="password" class="form-control form-control-lg" id="confirm_password" name="confirm_password"
+                                        placeholder="Confirm new password" required>
+                                <div id="passwordMatch" class="password-strength"></div>
+                            </div>
 
-                        <div class="mb-4">
-                            <label for="confirm_password" class="form-label">
-                                <i class="fas fa-lock me-2"></i>Confirm Password
-                            </label>
-                            <input type="password" class="form-control form-control-lg" id="confirm_password" name="confirm_password"
-                                   placeholder="Confirm your password" required>
-                            <div id="passwordMatch" class="password-strength"></div>
-                        </div>
-
-                        <button type="submit" class="btn btn-success btn-lg w-100 btn-register">
-                            <i class="fas fa-user-plus me-2"></i>Create Account
-                        </button>
-                    </form>
+                            <button type="submit" class="btn btn-success btn-lg w-100 btn-update">
+                                <i class="fas fa-save me-2"></i>Update Password
+                            </button>
+                        </form>
+                    <?php endif; ?>
 
                     <div class="text-center mt-4">
-                        <p class="mb-0">Already have an account?
-                            <a href="/login" class="text-decoration-none fw-semibold">Sign in here</a>
+                        <p class="mb-0">
+                            <a href="/login" class="text-decoration-none fw-semibold">Back to Login</a>
                         </p>
                     </div>
                 </div>

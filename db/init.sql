@@ -9,6 +9,18 @@ CREATE TABLE users
     PRIMARY KEY (id)
 );
 
+CREATE TABLE password_resets
+(
+    id INT AUTO_INCREMENT,
+    email VARCHAR(255) NOT NULL,
+    token VARCHAR(255) NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    UNIQUE KEY (email),
+    UNIQUE KEY (token)
+);
+
 INSERT INTO users
     (name, email, password, role)
 VALUES

@@ -6,7 +6,7 @@ include __DIR__ . '/Auth.php';
 // Create router instance
 $router = new Router();
 
-// Home page - redirect based on authentication
+// Home page - show landing page or redirect based on authentication
 $router->get('/', function() {
     if (Auth::isLoggedIn()) {
         $user = Auth::getCurrentUser();
@@ -17,8 +17,7 @@ $router->get('/', function() {
         }
         exit;
     } else {
-        header('Location: /login');
-        exit;
+        include __DIR__ . '/views/landing.php';
     }
 });
 
@@ -48,10 +47,35 @@ $router->post('/register', function() {
     include __DIR__ . '/views/register.php';
 });
 
+// Password reset routes
+$router->get('/forgot-password', function() {
+    if (Auth::isLoggedIn()) {
+        header('Location: /');
+        exit;
+    }
+    include __DIR__ . '/views/forgot_password.php';
+});
+
+$router->post('/forgot-password', function() {
+    include __DIR__ . '/views/forgot_password.php';
+});
+
+$router->get('/reset-password', function() {
+    if (Auth::isLoggedIn()) {
+        header('Location: /');
+        exit;
+    }
+    include __DIR__ . '/views/reset_password.php';
+});
+
+$router->post('/reset-password', function() {
+    include __DIR__ . '/views/reset_password.php';
+});
+
 // Logout route
 $router->get('/logout', function() {
     Auth::logout();
-    header('Location: /login');
+    header('Location: /');
     exit;
 });
 
@@ -79,14 +103,17 @@ $router->get('/admin/users/create', function() {
 
 $router->get('/admin/settings', function() {
     Auth::requireAdmin();
-    // Placeholder for settings page
-    echo "<h1>System Settings</h1><p>Settings page coming soon. <a href='/admin/dashboard'>Back to Dashboard</a></p>";
+    include __DIR__ . '/views/admin_settings.php';
+});
+
+$router->post('/admin/settings', function() {
+    Auth::requireAdmin();
+    include __DIR__ . '/views/admin_settings.php';
 });
 
 $router->get('/admin/reports', function() {
     Auth::requireAdmin();
-    // Placeholder for reports page
-    echo "<h1>Reports</h1><p>Reports page coming soon. <a href='/admin/dashboard'>Back to Dashboard</a></p>";
+    include __DIR__ . '/views/admin_reports.php';
 });
 
 // Profile routes
@@ -98,6 +125,24 @@ $router->get('/profile', function() {
 $router->post('/profile', function() {
     Auth::requireLogin();
     include __DIR__ . '/views/profile.php';
+});
+
+// Features page
+$router->get('/features', function() {
+    Auth::requireLogin();
+    include __DIR__ . '/views/features.php';
+});
+
+// Help & Support page
+$router->get('/help', function() {
+    Auth::requireLogin();
+    include __DIR__ . '/views/help.php';
+});
+
+// Code Editor
+$router->get('/editor', function() {
+    Auth::requireLogin();
+    include __DIR__ . '/views/editor.php';
 });
 
 $router->get('/users', function() {

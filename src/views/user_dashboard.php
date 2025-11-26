@@ -10,128 +10,142 @@ $user = Auth::getCurrentUser();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f8f9fa;
-            margin: 0;
-            padding: 0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
         }
-        .header {
-            background-color: #007bff;
-            color: white;
-            padding: 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .header h1 {
-            margin: 0;
-        }
-        .logout-btn {
-            background-color: #dc3545;
-            color: white;
-            padding: 0.5rem 1rem;
-            text-decoration: none;
-            border-radius: 4px;
-        }
-        .logout-btn:hover {
-            background-color: #c82333;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 1rem;
+        .navbar-custom {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         .welcome-card {
-            background: white;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 2rem;
-            text-align: center;
-        }
-        .welcome-card h2 {
-            color: #333;
-            margin-top: 0;
-        }
-        .actions {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1rem;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
         .action-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        .action-card h3 {
-            margin-top: 0;
-            color: #333;
+        .action-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
         }
-        .btn {
-            display: inline-block;
-            padding: 0.75rem 1.5rem;
-            background-color: #007bff;
+        .btn-custom {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 10px 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .profile-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            margin-right: 0.5rem;
-            margin-bottom: 0.5rem;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
         }
-        .btn:hover {
-            background-color: #0056b3;
-        }
-        .profile-info {
-            background: #f8f9fa;
-            padding: 1rem;
-            border-radius: 4px;
+        .icon-large {
+            font-size: 2.5rem;
             margin-bottom: 1rem;
-        }
-        .profile-info p {
-            margin: 0.5rem 0;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>User Dashboard</h1>
-        <div>
-            <span>Welcome, <?php echo htmlspecialchars($user['name']); ?></span>
-            <a href="/logout" class="logout-btn">Logout</a>
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container">
+            <a class="navbar-brand text-white fw-bold" href="#">
+                <i class="fas fa-tachometer-alt me-2"></i>User Dashboard
+            </a>
+            <div class="d-flex align-items-center">
+                <span class="text-white me-3">
+                    <i class="fas fa-user-circle me-2"></i>Welcome, <?php echo htmlspecialchars($user['name']); ?>
+                </span>
+                <a href="/logout" class="btn btn-outline-light btn-sm">
+                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                </a>
+            </div>
         </div>
-    </div>
+    </nav>
 
-    <div class="container">
-        <div class="welcome-card">
-            <h2>Welcome to your Dashboard</h2>
-            <p>You are logged in as a regular user. Here you can manage your account and access available features.</p>
+    <div class="container mt-5">
+        <div class="welcome-card p-4 mb-5">
+            <div class="text-center">
+                <i class="fas fa-user-circle icon-large text-primary"></i>
+                <h2 class="fw-bold mb-3">Welcome to your Dashboard</h2>
+                <p class="text-muted lead">You are logged in as a regular user. Here you can manage your account and access available features.</p>
+                <span class="profile-badge">
+                    <i class="fas fa-user me-1"></i><?php echo htmlspecialchars($user['role']); ?>
+                </span>
+            </div>
         </div>
 
-        <div class="actions">
-            <div class="action-card">
-                <h3>My Profile</h3>
-                <div class="profile-info">
-                    <p><strong>Name:</strong> <?php echo htmlspecialchars($user['name']); ?></p>
-                    <p><strong>Email:</strong> <?php echo htmlspecialchars($user['email']); ?></p>
-                    <p><strong>Role:</strong> <?php echo htmlspecialchars($user['role']); ?></p>
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="action-card p-4 h-100">
+                    <div class="text-center">
+                        <i class="fas fa-user-edit icon-large text-success"></i>
+                        <h4 class="fw-bold mb-3">My Profile</h4>
+                        <div class="bg-light p-3 rounded mb-3">
+                            <div class="row text-start">
+                                <div class="col-4"><strong>Name:</strong></div>
+                                <div class="col-8"><?php echo htmlspecialchars($user['name']); ?></div>
+                                <div class="col-4"><strong>Email:</strong></div>
+                                <div class="col-8"><?php echo htmlspecialchars($user['email']); ?></div>
+                                <div class="col-4"><strong>Role:</strong></div>
+                                <div class="col-8"><?php echo htmlspecialchars($user['role']); ?></div>
+                            </div>
+                        </div>
+                        <a href="/profile" class="btn btn-custom">
+                            <i class="fas fa-edit me-2"></i>Edit Profile
+                        </a>
+                    </div>
                 </div>
-                <a href="/profile" class="btn">Edit Profile</a>
             </div>
 
-            <div class="action-card">
-                <h3>Available Features</h3>
-                <p>Access various features available to users</p>
-                <a href="/features" class="btn">Browse Features</a>
+            <div class="col-lg-4 col-md-6">
+                <div class="action-card p-4 h-100">
+                    <div class="text-center">
+                        <i class="fas fa-cogs icon-large text-info"></i>
+                        <h4 class="fw-bold mb-3">Available Features</h4>
+                        <p class="text-muted">Access various features available to users</p>
+                        <a href="/features" class="btn btn-custom">
+                            <i class="fas fa-arrow-right me-2"></i>Browse Features
+                        </a>
+                    </div>
+                </div>
             </div>
 
-            <div class="action-card">
-                <h3>Help & Support</h3>
-                <p>Get help and support for using the system</p>
-                <a href="/help" class="btn">Get Help</a>
+            <div class="col-lg-4 col-md-6">
+                <div class="action-card p-4 h-100">
+                    <div class="text-center">
+                        <i class="fas fa-question-circle icon-large text-warning"></i>
+                        <h4 class="fw-bold mb-3">Help & Support</h4>
+                        <p class="text-muted">Get help and support for using the system</p>
+                        <a href="/help" class="btn btn-custom">
+                            <i class="fas fa-life-ring me-2"></i>Get Help
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
